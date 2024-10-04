@@ -5,11 +5,15 @@ import User from './entity.ts/Users';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { RequestUserDto } from './dtos/request-user.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { KafkaProducerService } from 'src/kafka/kafkaProducer.service';
 
 @ApiTags('users')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private kafkaProducer: KafkaProducerService,
+  ) {}
 
   @ApiOperation({ summary: 'Retrieve all users' })
   @ApiResponse({ status: 200, description: 'List of users successfully returned.' })
@@ -25,17 +29,19 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
-  @ApiOperation({ summary: 'Create a new user' })
+  @ApiOperation({ summary: 'Create a new user'})
   @ApiBody({ type: RequestUserDto })
   @Post('/create')
   async create(@Body() createUserDto: RequestUserDto) {
-   const createUser =  await this.userService.create(createUserDto);
-   return createUser;
+    const user = await this.userService.create(createUserDto);
+    await this.kafkaProducer.sendUserEvent({ type: 'CREATE', user });
+
+    return user;
   }
-  
-  @ApiOperation({ summary: 'Update an existing user' }) 
+
+  @ApiOperation({ summary: 'Update an existing user' })
   @ApiParam({ name: 'id', description: 'The ID of the user to update' })
-  @ApiBody({ type: UpdateUserDto }) 
+  @ApiBody({ type: UpdateUserDto })
   @ApiResponse({ status: 200, description: 'User successfully updated.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
   @Put(':id')
@@ -47,15 +53,16 @@ export class UserController {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    await this.kafkaProducer.sendUserEvent({ type: 'UPDATE', user: user });
     return user;
   }
 
-  @ApiOperation({ summary: 'Delete a user by ID' }) 
-  @ApiParam({ name: 'id', description: 'The ID of the user to delete' }) 
+  @ApiOperation({ summary: 'Delete a user by ID' })
+  @ApiParam({ name: 'id', description: 'The ID of the user to delete' })
   @ApiResponse({ status: 200, description: 'User successfully deleted.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
   @Delete(':id')
   async remove(@Param('id') id: number): Promise<void> {
-    return this.userService.delete(id);
+    await this.userService.delete(id);
   }
 }

@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
-        "outDir": "./dist", 
-        "module": "commonjs",
-        "target": "es6",
-        "rootDir": "./src",
+    "module": "commonjs",
+    "target": "es6",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -12,17 +10,19 @@
     "sourceMap": true,
     "baseUrl": "./",
     "incremental": true,
-    "skipLibCheck": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false, 
+    "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
-    "moduleResolution": "node", 
-    "resolveJsonModule": true,    
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
     "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*"],      
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]
-  }
+}

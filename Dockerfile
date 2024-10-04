@@ -10,4 +10,5 @@ ENV POSTGRES_DB=postgres
 # COPY ./init-db.d /docker-entrypoint-initdb.d/
 
 # Exponha a porta padrão do PostgreSQL
+CMD ["npm", "run", "/main.js/dist"]
 EXPOSE 5432
